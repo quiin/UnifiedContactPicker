@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Contact Picker</string>
+    <string name="title_activity_pick_contact">PickContactActivity</string>
+    <string name="title_activity_contact_picker">ContactPickerActivity</string>
+    <string name="action_settings">Settings</string>
+</resources>
