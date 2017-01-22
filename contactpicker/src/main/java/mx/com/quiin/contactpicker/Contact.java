@@ -1,4 +1,4 @@
-package mx.com.quiin.contactpicker.models;
+package mx.com.quiin.contactpicker;
 
 import android.net.Uri;
 import android.provider.ContactsContract;
@@ -71,10 +71,10 @@ public class Contact {
     }
 
     public void addCommunication(String communication, String communicationType){
-
-        if(communicationType.equals(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE))
+        communication = communication.replaceAll(" ", "");
+        if(communicationType.equals(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE) && !getEmails().contains(communication))
             getEmails().add(communication);
-        else
+        else if (!getCellphones().contains(communication))
             getCellphones().add(communication);
 
     }
@@ -95,5 +95,24 @@ public class Contact {
                 ", cellphones=" + cellphones +
                 ", emails=" + emails +
                 '}';
+    }
+
+    public String getInitial() {
+        return String.valueOf(this.displayName.charAt(0));
+    }
+
+    public List<String> getAllCommunications(){
+        List<String> all = new ArrayList<>(getEmails());
+        all.addAll(getCellphones());
+        return all;
+    }
+
+    public String findCommunication(String selected) {
+        List<String> all = getAllCommunications();
+        int index = all.indexOf(selected);
+        if(index >= 0)
+            return all.get(index);
+
+        return all.get(0);
     }
 }

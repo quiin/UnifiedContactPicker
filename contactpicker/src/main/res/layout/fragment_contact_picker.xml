@@ -7,7 +7,7 @@
     tools:context="mx.com.quiin.contactpicker.ui.ContactPickerFragment"
     tools:showIn="@layout/activity_contact_picker">
 
-<ListView
+<android.support.v7.widget.RecyclerView
     android:id="@+id/cp_listView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>

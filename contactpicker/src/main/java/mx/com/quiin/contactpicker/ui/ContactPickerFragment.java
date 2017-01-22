@@ -9,33 +9,34 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 
 import java.util.ArrayList;
-import java.util.List;
 
-import mx.com.quiin.contactpicker.ContactAdapter;
+import mx.com.quiin.contactpicker.adapters.ContactAdapter;
 import mx.com.quiin.contactpicker.R;
-import mx.com.quiin.contactpicker.models.Contact;
+import mx.com.quiin.contactpicker.Contact;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class ContactPickerFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int CONTACT_LOADER_ID = 666;
     private static final String TAG = ContactPickerFragment.class.getSimpleName();
-    private ListView mListView;
+    private RecyclerView mRecyclerView;
 
     private ContactAdapter mContactAdapter;
     private final ArrayList<Contact> mContacts = new ArrayList<>();
+    private final ArrayList<Contact> mSelectedContacts = new ArrayList<>();
 
     private final String[] PROJECTION = new String[] {
             ContactsContract.Data._ID,
@@ -56,10 +57,15 @@ public class ContactPickerFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.mListView = (ListView) view.findViewById(R.id.cp_listView);
-        mContactAdapter = new ContactAdapter(getContext(), R.layout.cp_contact_row, mContacts);
-        mListView.setAdapter(mContactAdapter);
-        mListView.setOnItemClickListener(this);
+        this.mRecyclerView = (RecyclerView) view.findViewById(R.id.cp_listView);
+        this.mContactAdapter = new ContactAdapter(getContext(), mContacts);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        mRecyclerView.setAdapter(mContactAdapter);
+
 
         getActivity().getSupportLoaderManager()
                 .initLoader(CONTACT_LOADER_ID,
@@ -134,20 +140,7 @@ public class ContactPickerFragment extends Fragment implements
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
-    /**
-     * Called whenever an item in {@param parent} is clicked
-     * @param parent listView
-     * @param view clicked view
-     * @param position clicked position
-     * @param id unique identifier
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Log.e(TAG, "onItemClick: position " + position);
-        Contact contact = mContacts.get(position);
-        if(contact != null)
-            Log.e(TAG, contact.toString() );
-        else
-            Log.e(TAG, "onItemClick: contact is null");
-    }
+
+
+
 }

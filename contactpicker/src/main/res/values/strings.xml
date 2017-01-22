@@ -3,4 +3,5 @@
     <string name="title_activity_pick_contact">PickContactActivity</string>
     <string name="title_activity_contact_picker">ContactPickerActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="not_found">Not found</string>
 </resources>
