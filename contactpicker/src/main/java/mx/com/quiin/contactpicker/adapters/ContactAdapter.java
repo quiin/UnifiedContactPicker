@@ -25,6 +25,7 @@ import java.util.List;
 import mx.com.quiin.contactpicker.R;
 import mx.com.quiin.contactpicker.Contact;
 import mx.com.quiin.contactpicker.Utils;
+import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
 import mx.com.quiin.contactpicker.ui.ContactSpinner;
 
 /**
@@ -36,19 +37,20 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     private static final String TAG = ContactAdapter.class.getSimpleName();
     private final int[] mMaterialColors;
     private final List<Contact> mContacts;
-    private LinkedHashMap<Contact, String> mSelectedItems;
+    private final LinkedHashMap<Contact, String> mSelectedItems;
     private final Context mContext;
     private final int selectedColor;
     private final int subtitleColor;
-    int count = 0;
+    private final ContactSelectionListener mListener;
 
-    public ContactAdapter(Context context, List<Contact> contacts) {
+    public ContactAdapter(Context context, List<Contact> contacts, ContactSelectionListener listener) {
         this.mMaterialColors = context.getResources().getIntArray(R.array.colors);
         this.mContacts = contacts;
         this.mSelectedItems = new LinkedHashMap<>();
         this.mContext = context;
         this.selectedColor = ResourcesCompat.getColor(context.getResources(), R.color.color_7,null);
         this.subtitleColor= ResourcesCompat.getColor(context.getResources(), R.color.subtitle,null);
+        this.mListener = listener;
     }
 
 
@@ -151,13 +153,19 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             String prevSelected = mSelectedItems.get(contact);
             if(prevSelected.equals(selected)){
                 mSelectedItems.remove(contact);
+                mListener.onContactDeselected(contact,communication);
                 selectView(false, viewHolder);
             }else{
+                mSelectedItems.remove(contact);
+                mListener.onContactDeselected(contact, communication);
+
                 mSelectedItems.put(contact, communication);
+                mListener.onContactSelected(contact,communication);
             }
 
         }else {
             mSelectedItems.put(contact, communication);
+            mListener.onContactSelected(contact,communication);
             selectView(true, viewHolder);
         }
     }
@@ -197,6 +205,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     public int getItemCount() {
         return mContacts.size();
     }
+
+
 
     public class ContactViewHolder extends RecyclerView.ViewHolder{
 

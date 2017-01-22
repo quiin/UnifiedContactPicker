@@ -7,10 +7,20 @@
     tools:context="mx.com.quiin.contactpicker.ui.ContactPickerFragment"
     tools:showIn="@layout/activity_contact_picker">
 
-<android.support.v7.widget.RecyclerView
-    android:id="@+id/cp_listView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    <com.hootsuite.nachos.NachoTextView
+        android:id="@+id/nachoTextView"
+        android:paddingRight="@dimen/activity_vertical_margin"
+        android:layout_alignParentTop="true"
+        android:drawableRight="@drawable/ic_search"
+        android:drawableEnd="@drawable/ic_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/cp_listView"
+        android:layout_below="@id/nachoTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 
 </RelativeLayout>

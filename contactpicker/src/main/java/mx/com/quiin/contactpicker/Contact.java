@@ -2,6 +2,7 @@ package mx.com.quiin.contactpicker;
 
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,11 +91,7 @@ public class Contact {
 
     @Override
     public String toString() {
-        return "Contact{" +
-                "displayName='" + displayName + '\'' +
-                ", cellphones=" + cellphones +
-                ", emails=" + emails +
-                '}';
+        return String.format("%s\n%s", displayName, getAllCommunications().get(0));
     }
 
     public String getInitial() {
