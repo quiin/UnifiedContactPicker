@@ -1,4 +1,4 @@
-package mx.com.quiin.contactpicker.ui;
+package mx.com.quiin.contactpicker.views;
 
 import android.content.Context;
 import android.util.AttributeSet;

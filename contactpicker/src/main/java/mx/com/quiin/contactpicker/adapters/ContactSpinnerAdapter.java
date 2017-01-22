@@ -17,6 +17,7 @@ import java.util.List;
 import mx.com.quiin.contactpicker.Contact;
 import mx.com.quiin.contactpicker.R;
 import mx.com.quiin.contactpicker.Utils;
+import mx.com.quiin.contactpicker.interfaces.ClickListener;
 
 /**
  * Created by Carlos Reyna on 20/01/17.
@@ -106,8 +107,4 @@ public class ContactSpinnerAdapter extends ArrayAdapter<String>{
     }
 
 
-
-    public interface ClickListener{
-        void onSpinnerClick(String communication, String displayName);
-    }
 }

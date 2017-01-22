@@ -5,15 +5,12 @@ import android.graphics.Color;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.Spinner;
+
 import android.widget.TextView;
 
 import com.github.ivbaranov.mli.MaterialLetterIcon;
@@ -25,14 +22,16 @@ import java.util.List;
 import mx.com.quiin.contactpicker.R;
 import mx.com.quiin.contactpicker.Contact;
 import mx.com.quiin.contactpicker.Utils;
+import mx.com.quiin.contactpicker.interfaces.ClickListener;
 import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
-import mx.com.quiin.contactpicker.ui.ContactSpinner;
+import mx.com.quiin.contactpicker.views.ContactSpinner;
+import mx.com.quiin.contactpicker.views.ContactViewHolder;
 
 /**
  * Created by Carlos Reyna on 20/01/17.
  */
 
-public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder>{
+public class ContactAdapter extends RecyclerView.Adapter<ContactViewHolder>{
 
     private static final String TAG = ContactAdapter.class.getSimpleName();
     private final int[] mMaterialColors;
@@ -55,7 +54,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
 
     @Override
-    public ContactAdapter.ContactViewHolder onCreateViewHolder(ViewGroup parent, final int viewType) {
+    public ContactViewHolder onCreateViewHolder(ViewGroup parent, final int viewType) {
         final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cp_contact_row,parent,false);
         final ContactViewHolder viewHolder = new ContactViewHolder(view);
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +86,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
             final List<String> communications = new ArrayList<>(cellphones);
             communications.addAll(emails);
 
-            ContactSpinnerAdapter adapter = new ContactSpinnerAdapter(mContext, R.layout.cp_spinner_row, communications, contact.getDisplayName(), new ContactSpinnerAdapter.ClickListener() {
+            ContactSpinnerAdapter adapter = new ContactSpinnerAdapter(mContext, R.layout.cp_spinner_row, communications, contact.getDisplayName(), new ClickListener() {
                 @Override
                 public void onSpinnerClick(String communication, String displayName) {
                     toggle(pos, viewHolder);
@@ -207,21 +206,5 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     }
 
 
-
-    public class ContactViewHolder extends RecyclerView.ViewHolder{
-
-        public MaterialLetterIcon letterIcon;
-        public ContactSpinner spinner;
-        public ImageView ivSelected;
-
-        public ContactViewHolder(View view) {
-            super(view);
-            letterIcon = (MaterialLetterIcon) view.findViewById(R.id.letterIcon);
-            spinner = (ContactSpinner) view.findViewById(R.id.cp_spinner);
-            ivSelected = (ImageView) view.findViewById(R.id.cp_ivSelected);
-        }
-
-
-    }
 
 }

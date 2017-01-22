@@ -41,7 +41,7 @@
 
 
     <!--Spinner-->
-    <mx.com.quiin.contactpicker.ui.ContactSpinner
+    <mx.com.quiin.contactpicker.views.ContactSpinner
         android:id="@+id/cp_spinner"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
