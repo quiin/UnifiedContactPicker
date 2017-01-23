@@ -1,8 +1,10 @@
 package mx.com.quiin.contactpicker;
 
 import android.net.Uri;
-import android.provider.ContactsContract;
-import android.util.Log;
+
+
+
+import com.bignerdranch.expandablerecyclerview.model.Parent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,47 +13,43 @@ import java.util.List;
  * Created by Carlos Reyna on 20/01/17.
  */
 
-public class Contact {
+public class Contact implements Parent<String>{
 
     private String displayName;
-    private List<String> cellphones;
-    private List<String> emails;
-    private Uri photoUri;
+    private boolean isSelected;
+    private List<String> communications;
+    private String selectedCommunication;
+
 
     /**** Constructors ******/
     public Contact(String displayName) {
-        this.displayName = displayName;
-        this.cellphones = new ArrayList<>();
-        this.emails = new ArrayList<>();
+        setDisplayName(displayName);
+        setCommunications(new ArrayList<String>());
+
+
     }
 
-    public Contact(String displayName, List<String> cellphones) {
-        this.displayName = displayName;
-        this.cellphones = cellphones;
-        this.emails = new ArrayList<>();
+    public Contact(String displayName, List<String> communications) {
+        setDisplayName(displayName);
+        setCommunications(communications);
     }
 
-    public Contact(String displayName, List<String> cellphones, List<String> emails) {
-        this.displayName = displayName;
-        this.cellphones = cellphones;
-        this.emails = emails;
-    }
+
 
     /**** Getters ******/
     public String getDisplayName() {
         return displayName;
     }
 
-    public List<String> getCellphones() {
-        return cellphones == null ? new ArrayList<String>() : cellphones;
+    public List<String> getCommunications() {
+        return communications;
     }
 
-    public List<String> getEmails() {
-        return emails == null ? new ArrayList<String>() : emails;
-    }
+    public String getSelectedCommunication() {
+        if(this.selectedCommunication == null)
+            this.selectedCommunication = getDefaultCommunication();
 
-    public Uri getPhotoUri() {
-        return photoUri;
+        return this.selectedCommunication;
     }
 
     /**** Setters******/
@@ -59,26 +57,23 @@ public class Contact {
         this.displayName = displayName;
     }
 
-    public void setCellphones(List<String> cellphones) {
-        this.cellphones = cellphones;
+    public void setSelectedCommunication(String selectedCommunication) {
+        this.selectedCommunication = selectedCommunication;
     }
 
-    public void setEmails(List<String> emails) {
-        this.emails = emails;
-    }
-
-    public void setPhotoUri(Uri photoUri) {
-        this.photoUri = photoUri;
-    }
-
-    public void addCommunication(String communication, String communicationType){
+    public void addCommunication(String communication){
         communication = communication.replaceAll(" ", "");
-        if(communicationType.equals(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE) && !getEmails().contains(communication))
-            getEmails().add(communication);
-        else if (!getCellphones().contains(communication))
-            getCellphones().add(communication);
-
+        if(!communications.contains(communication)) {
+            communications.add(communication);
+        }
     }
+
+    public void setCommunications(List<String> communications) {
+        if(communications == null)
+            communications = new ArrayList<>();
+        this.communications = communications;
+    }
+
 
     @Override
     public boolean equals(Object obj) {
@@ -91,25 +86,51 @@ public class Contact {
 
     @Override
     public String toString() {
-        return String.format("%s\n%s", displayName, getAllCommunications().get(0));
+        return "Contact{" +
+                "displayName='" + displayName + '\'' +
+                ", communications=" + communications +
+                '}';
     }
 
     public String getInitial() {
         return String.valueOf(this.displayName.charAt(0));
     }
 
-    public List<String> getAllCommunications(){
-        List<String> all = new ArrayList<>(getEmails());
-        all.addAll(getCellphones());
-        return all;
+
+    public String getDefaultCommunication() {
+        if(communications.size() > 0)
+            return communications.get(0);
+        return "Not found";
     }
 
-    public String findCommunication(String selected) {
-        List<String> all = getAllCommunications();
-        int index = all.indexOf(selected);
-        if(index >= 0)
-            return all.get(index);
 
-        return all.get(0);
+
+    public int getTotalCommunications(){
+        return communications.size();
+    }
+
+    @Override
+    public List<String> getChildList() {
+        if(communications.size() > 1)
+            return communications;
+        return new ArrayList<>();
+    }
+
+    @Override
+    public boolean isInitiallyExpanded() {
+        return false;
+    }
+
+
+    public void setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public SimpleContact simplify() {
+        return new SimpleContact(displayName, selectedCommunication);
     }
 }

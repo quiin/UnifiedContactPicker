@@ -1,201 +1,226 @@
 package mx.com.quiin.contactpicker.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-
 import android.widget.TextView;
 
+import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.github.ivbaranov.mli.MaterialLetterIcon;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import mx.com.quiin.contactpicker.R;
 import mx.com.quiin.contactpicker.Contact;
+import mx.com.quiin.contactpicker.SimpleContact;
 import mx.com.quiin.contactpicker.Utils;
-import mx.com.quiin.contactpicker.interfaces.ClickListener;
 import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
-import mx.com.quiin.contactpicker.views.ContactSpinner;
+import mx.com.quiin.contactpicker.views.CommunicationViewHolder;
 import mx.com.quiin.contactpicker.views.ContactViewHolder;
 
 /**
  * Created by Carlos Reyna on 20/01/17.
  */
 
-public class ContactAdapter extends RecyclerView.Adapter<ContactViewHolder>{
+public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, ContactViewHolder, CommunicationViewHolder>{
 
     private static final String TAG = ContactAdapter.class.getSimpleName();
-    private final int[] mMaterialColors;
-    private final List<Contact> mContacts;
-    private final LinkedHashMap<Contact, String> mSelectedItems;
-    private final Context mContext;
+    private int[] mMaterialColors;
+    private List<Contact> mContacts;
+    private List<Contact> mSelection;
     private final int selectedColor;
     private final int subtitleColor;
     private final ContactSelectionListener mListener;
 
     public ContactAdapter(Context context, List<Contact> contacts, ContactSelectionListener listener) {
+        super(contacts);
         this.mMaterialColors = context.getResources().getIntArray(R.array.colors);
         this.mContacts = contacts;
-        this.mSelectedItems = new LinkedHashMap<>();
-        this.mContext = context;
+        this.mSelection = new ArrayList<>();
         this.selectedColor = ResourcesCompat.getColor(context.getResources(), R.color.color_7,null);
         this.subtitleColor= ResourcesCompat.getColor(context.getResources(), R.color.subtitle,null);
         this.mListener = listener;
     }
 
 
+    @NonNull
     @Override
-    public ContactViewHolder onCreateViewHolder(ViewGroup parent, final int viewType) {
+    public ContactViewHolder onCreateParentViewHolder(@NonNull ViewGroup parent, int viewType) {
         final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cp_contact_row,parent,false);
-        final ContactViewHolder viewHolder = new ContactViewHolder(view);
+        return new ContactViewHolder(view);
+    }
+
+    @NonNull
+    @Override
+    public CommunicationViewHolder onCreateChildViewHolder(@NonNull ViewGroup parent, int viewType) {
+        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cp_communication_row,parent,false);
+        final CommunicationViewHolder viewHolder = new CommunicationViewHolder(view);
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int position = viewHolder.getAdapterPosition();
-                toggle(position, viewHolder);
-
+                int childPosition = viewHolder.getChildAdapterPosition();
+                int parentPosition = viewHolder.getParentAdapterPosition();
+                handleChildSelection(parentPosition,childPosition);
+                collapseParent(parentPosition);
             }
         });
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(ContactViewHolder holder, int position) {
-        Contact contact = mContacts.get(position);
-        final int pos = position;
-        final ContactViewHolder viewHolder = holder;
+    public void onBindParentViewHolder(@NonNull ContactViewHolder parentViewHolder, int parentPosition, @NonNull Contact parent) {
+        bindParent(parentViewHolder, parentPosition);
+    }
 
+    @Override
+    public void onBindChildViewHolder(@NonNull CommunicationViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull String child) {
+        bindCommunicationToViewHolder(childViewHolder, child);
+    }
+
+    private void bindCommunicationToViewHolder(CommunicationViewHolder childViewHolder, String child) {
+        childViewHolder.tvCommunication.setText(child);
+        if(Utils.isEmail(child))
+            childViewHolder.ivCommunicationIcon.setImageResource(R.drawable.ic_email);
+        else
+            childViewHolder.ivCommunicationIcon.setImageResource(R.drawable.ic_message);
+    }
+
+    @SuppressLint("DefaultLocale")
+    private void bindParent(final ContactViewHolder parentViewHolder, final int position) {
+
+        final Contact contact = mContacts.get(position);
         if(contact != null){
 
-            List<String> cellphones = contact.getCellphones();
-            List<String> emails = contact.getEmails();
+            String communication = contact.getSelectedCommunication();
 
-            holder.letterIcon.setLetter(contact.getInitial());
-            holder.letterIcon.setShapeColor(mMaterialColors[position % mMaterialColors.length]);
+            parentViewHolder.letterIcon.setLetter(contact.getInitial());
+            parentViewHolder.letterIcon.setShapeColor(mMaterialColors[position % mMaterialColors.length]);
+            parentViewHolder.tvCommunication.setText(communication);
+            parentViewHolder.tvDisplayName.setText(contact.getDisplayName());
 
+            if(Utils.isEmail(communication))
+                parentViewHolder.ivSelectedCommunication.setImageResource(R.drawable.ic_email);
+            else
+                parentViewHolder.ivSelectedCommunication.setImageResource(R.drawable.ic_message);
 
-            final List<String> communications = new ArrayList<>(cellphones);
-            communications.addAll(emails);
+            if(contact.getTotalCommunications() > 1) {
+                parentViewHolder.ivExpandArrow.setVisibility(View.VISIBLE);
+                parentViewHolder.expandableArea.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        expand(contact, parentViewHolder);
+                    }
+                });
 
-            ContactSpinnerAdapter adapter = new ContactSpinnerAdapter(mContext, R.layout.cp_spinner_row, communications, contact.getDisplayName(), new ClickListener() {
-                @Override
-                public void onSpinnerClick(String communication, String displayName) {
-                    toggle(pos, viewHolder);
-                }
-            });
+                parentViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(contact.isSelected())
+                            unSelectContact(contact);
+                        else
+                            expand(contact, parentViewHolder);
+                    }
+                });
+            }
+            else {
+                parentViewHolder.ivExpandArrow.setVisibility(View.INVISIBLE);
+                parentViewHolder.expandableArea.setClickable(false);
+                parentViewHolder.expandableArea.setFocusable(false);
+                parentViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        handleParentSelection(position);
+                    }
+                });
+            }
 
-            holder.spinner.setAdapter(adapter);
-            setSpinnerWithoutCallingListener(pos, communications, viewHolder);
 
             //Select item if previously selected
-            selectView(mSelectedItems.containsKey(contact), holder);
+            selectView(contact, parentViewHolder);
 
 
         }else
             Log.e(TAG, "onBindViewHolder: contact null");
     }
 
-    private void setSpinnerWithoutCallingListener(final int pos, final List<String> communications, final ContactViewHolder viewHolder) {
-        final ContactSpinner spinner = viewHolder.spinner;
-        final AdapterView.OnItemSelectedListener listener = new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ImageView ivCommunicationIcon = (ImageView) view.findViewById(R.id.ivCommunicationIcon);
-                ImageView ivSelectedCommunication = (ImageView) view.findViewById(R.id.cp_ivSelectedComm);
-                String communication = communications.get(position);
-                if(Utils.isEmail(communication))
-                    ivSelectedCommunication.setImageResource(R.drawable.ic_email);
-                else
-                    ivSelectedCommunication.setImageResource(R.drawable.ic_message);
-                ivCommunicationIcon.setVisibility(View.GONE);
-                ivSelectedCommunication.setVisibility(View.VISIBLE);
-
-                toggle(pos, viewHolder);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        };
-        spinner.setOnItemSelectedListener(null);
-        spinner.post(new Runnable() {
-            @Override
-            public void run() {
-                spinner.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        spinner.setOnItemSelectedListener(listener);
-                    }
-                });
-            }
-        });
-
+    private void expand(Contact contact, ContactViewHolder parentViewHolder) {
+        if(parentViewHolder.isExpanded())
+            collapseParent(contact);
+        else
+            expandParent(contact);
     }
 
 
-    private void toggle(int position, ContactViewHolder viewHolder){
+    private void handleParentSelection(int position) {
         Contact contact = mContacts.get(position);
-        String selected = (String) viewHolder.spinner.getSelectedItem();
-        String communication = contact.findCommunication(selected);
-        if(mSelectedItems.containsKey(contact)) {
-            String prevSelected = mSelectedItems.get(contact);
-            if(prevSelected.equals(selected)){
-                mSelectedItems.remove(contact);
-                mListener.onContactDeselected(contact,communication);
-                selectView(false, viewHolder);
-            }else{
-                mSelectedItems.remove(contact);
-                mListener.onContactDeselected(contact, communication);
-
-                mSelectedItems.put(contact, communication);
-                mListener.onContactSelected(contact,communication);
-            }
-
-        }else {
-            mSelectedItems.put(contact, communication);
-            mListener.onContactSelected(contact,communication);
-            selectView(true, viewHolder);
-        }
+        String communication = contact.getSelectedCommunication();
+        selectCommunication(contact, position, communication);
     }
 
+    private void handleChildSelection(int parentPosition, int childPosition) {
+        Contact contact = mContacts.get(parentPosition);
+        String communication = contact.getCommunications().get(childPosition);
+        selectCommunication(contact,parentPosition, communication);
+    }
 
-    private void selectView(boolean select, ContactViewHolder view) {
+    private void selectCommunication(Contact contact, int parentPosition, String communication){
+        if(mSelection.contains(contact)){
+            //existing contact
+            if(contact.getSelectedCommunication().equals(communication)){
+                contact.setSelected(false);
+                mSelection.remove(contact);
+                mListener.onContactDeselected(contact,communication);
+            }else{
+                contact.setSelected(true);
+                String prevSelected = contact.getSelectedCommunication();
+                mListener.onContactDeselected(contact,prevSelected);
+                mListener.onContactSelected(contact,communication);
+                contact.setSelectedCommunication(communication);
+            }
+        }else{
+            contact.setSelected(true);
+            contact.setSelectedCommunication(communication);
+            mSelection.add(contact);
+            mListener.onContactSelected(contact, communication);
+        }
+        notifyParentChanged(parentPosition);
+    }
+
+    private void unSelectContact(Contact contact){
+
+        if(mSelection.contains(contact)){
+            contact.setSelected(false);
+            mSelection.remove(contact);
+            mListener.onContactDeselected(contact,contact.getSelectedCommunication());
+            notifyParentChanged(mContacts.indexOf(contact));
+        }
+
+    }
+
+    private void selectView(Contact contact, ContactViewHolder view) {
         ImageView ivSelected = view.ivSelected;
         MaterialLetterIcon letterIcon = view.letterIcon;
+        TextView tvDisplayName = view.tvDisplayName;
+        TextView tvCommunication = view.tvCommunication;
 
-        if(select){
+        if(contact.isSelected()){
             letterIcon.setVisibility(View.GONE);
             ivSelected.setVisibility(View.VISIBLE);
+            tvDisplayName.setTextColor(selectedColor);
+            tvCommunication.setTextColor(selectedColor);
         }else{
             letterIcon.setVisibility(View.VISIBLE);
             ivSelected.setVisibility(View.GONE);
-        }
-
-        View selectedView = view.spinner.getSelectedView();
-
-        if(selectedView != null){
-            TextView tvDisplayName = (TextView) selectedView.findViewById(R.id.tvDisplayName);
-            TextView tvCommunication = (TextView) selectedView.findViewById(R.id.tvCommunication);
-            if(tvDisplayName != null && tvCommunication != null){
-                if(select){
-                    tvDisplayName.setTextColor(selectedColor);
-                    tvCommunication.setTextColor(selectedColor);
-                }else{
-                    tvDisplayName.setTextColor(Color.BLACK);
-                    tvCommunication.setTextColor(subtitleColor);
-                }
-            }
+            tvDisplayName.setTextColor(Color.BLACK);
+            tvCommunication.setTextColor(subtitleColor);
         }
 
     }
@@ -205,6 +230,12 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactViewHolder>{
         return mContacts.size();
     }
 
-
+    public List<SimpleContact> getSelection(){
+        List<SimpleContact> selected = new ArrayList<>();
+        for (Contact contact : mSelection) {
+            selected.add(contact.simplify());
+        }
+        return selected;
+    }
 
 }

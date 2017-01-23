@@ -59,7 +59,7 @@ public class AutoCompleteAdapter extends ArrayAdapter<Contact> implements Filter
             if(tvDisplayName != null)
                 tvDisplayName.setText(contact.getDisplayName());
             if(tvCommunication != null)
-                tvCommunication.setText(contact.getAllCommunications().get(0));
+                tvCommunication.setText(contact.getDefaultCommunication());
             if(letterIcon != null){
                 letterIcon.setLetter(contact.getInitial());
                 letterIcon.setShapeColor(mMaterialColors[position % mMaterialColors.length]);
@@ -80,7 +80,7 @@ public class AutoCompleteAdapter extends ArrayAdapter<Contact> implements Filter
 
         @Override
         public CharSequence convertResultToString(Object resultValue) {
-            return ((Contact) resultValue).getAllCommunications().get(0);
+            return ((Contact) resultValue).getDefaultCommunication();
         }
 
         @Override
@@ -88,8 +88,10 @@ public class AutoCompleteAdapter extends ArrayAdapter<Contact> implements Filter
 
             if(constraint != null){
                 suggestions.clear();
+                String query = constraint.toString().toLowerCase();
                 for (Contact contact : tempContacts) {
-                    if(contact.getDisplayName().toLowerCase().contains(constraint.toString().toLowerCase()))
+                    if(contact.getDisplayName().toLowerCase().contains(query) ||
+                            contact.getSelectedCommunication().contains(query))
                         suggestions.add(contact);
                 }
                 FilterResults filterResults = new FilterResults();

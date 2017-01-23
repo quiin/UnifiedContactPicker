@@ -30,6 +30,7 @@ dependencies {
     compile 'com.android.support:design:25.1.0'
     compile 'com.github.ivbaranov:materiallettericon:0.2.2'
     compile 'com.makeramen:roundedimageview:2.3.0'
+    compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
     compile "com.hootsuite.android:nachos:1.0.0" //add jcenter to project lvl build.gradle
     testCompile 'junit:junit:4.12'
 }

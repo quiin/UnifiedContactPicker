@@ -3,15 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="8dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
 
+    <!--Material letter / selected-->
     <ImageSwitcher
         android:id="@+id/cp_imageContainer"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:layout_marginEnd="@dimen/activity_vertical_margin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -28,7 +34,7 @@
             android:focusable="false"
             android:scaleType="center"
             android:visibility="gone"
-            android:background="@color/color_11"
+            android:background="@color/materialGreen"
             android:src="@drawable/ic_done"
             android:focusableInTouchMode="false"
             android:layout_width="@dimen/contact_size"
@@ -40,19 +46,77 @@
     </ImageSwitcher>
 
 
-    <!--Spinner-->
-    <mx.com.quiin.contactpicker.views.ContactSpinner
-        android:id="@+id/cp_spinner"
-        android:layout_centerVertical="true"
+    <!--Expandable area-->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/cp_clickArea"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@id/cp_imageContainer"
-        android:layout_marginLeft="@dimen/activity_vertical_margin"
-        android:layout_marginStart="@dimen/activity_vertical_margin"
-        android:clickable="false"
-        android:layout_toRightOf="@id/cp_imageContainer"
         android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:paddingRight="@dimen/activity_vertical_margin"
+        android:paddingEnd="@dimen/activity_vertical_margin"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <!--Selected icon-->
+        <ImageView
+            android:id="@+id/cp_ivSelectedComm"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/activity_vertical_margin"
+            android:layout_marginStart="@dimen/activity_vertical_margin"
+            android:src="@drawable/ic_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="ContentDescription" />
+
+        <!--Expand arrow-->
+        <ImageView
+            android:id="@+id/cp_arrowExpand"
+            android:src="@drawable/ic_expand"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="ContentDescription" />
+
+    </LinearLayout>
+
+    <!--Main content-->
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_toRightOf="@id/cp_imageContainer"
+        android:layout_toEndOf="@id/cp_imageContainer"
+        android:layout_toLeftOf="@id/cp_clickArea"
+        android:layout_toStartOf="@id/cp_clickArea"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_centerVertical="true"
+        android:layout_height="wrap_content">
+
+        <!--DisplayName-->
+        <TextView
+            android:id="@+id/tvDisplayName"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textSize="16sp"
+            android:ellipsize="end"
+            android:layout_alignParentTop="true"
+            android:text="kebckwhbvjhdsbjchbsjv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!--Communication-->
+        <TextView
+            android:id="@+id/tvCommunication"
+            android:layout_below="@id/tvDisplayName"
+            android:text="kbjewhvbjwehbvj"
+            android:ellipsize="end"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+
+
 
 
 
