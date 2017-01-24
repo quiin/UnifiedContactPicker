@@ -17,7 +17,7 @@ public class ContactChipCreator extends ChipSpanChipCreator{
     @Override
     public ChipSpan createChip(@NonNull Context context, @NonNull CharSequence text, Object data) {
         Drawable chipIcon;
-        if(Utils.isEmail(text.toString()))
+        if(PickerUtils.isEmail(text.toString()))
             chipIcon = ResourcesCompat.getDrawable(context.getResources(),R.drawable.ic_email_white, null);
         else
             chipIcon = ResourcesCompat.getDrawable(context.getResources(),R.drawable.ic_message_white, null);

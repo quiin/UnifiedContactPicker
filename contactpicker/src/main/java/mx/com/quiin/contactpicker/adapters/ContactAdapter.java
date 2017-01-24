@@ -2,6 +2,7 @@ package mx.com.quiin.contactpicker.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
@@ -21,7 +22,7 @@ import java.util.List;
 import mx.com.quiin.contactpicker.R;
 import mx.com.quiin.contactpicker.Contact;
 import mx.com.quiin.contactpicker.SimpleContact;
-import mx.com.quiin.contactpicker.Utils;
+import mx.com.quiin.contactpicker.PickerUtils;
 import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
 import mx.com.quiin.contactpicker.views.CommunicationViewHolder;
 import mx.com.quiin.contactpicker.views.ContactViewHolder;
@@ -36,11 +37,13 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
     private int[] mMaterialColors;
     private List<Contact> mContacts;
     private List<Contact> mSelection;
+    private final Bitmap selectedDrawable;
     private final int selectedColor;
     private final int subtitleColor;
     private final ContactSelectionListener mListener;
+    private final int selectedIconColor;
 
-    public ContactAdapter(Context context, List<Contact> contacts, ContactSelectionListener listener) {
+    public ContactAdapter(Context context, List<Contact> contacts, ContactSelectionListener listener, String selectedIconHex, byte[] selectedDrawable) {
         super(contacts);
         this.mMaterialColors = context.getResources().getIntArray(R.array.colors);
         this.mContacts = contacts;
@@ -48,6 +51,16 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
         this.selectedColor = ResourcesCompat.getColor(context.getResources(), R.color.color_7,null);
         this.subtitleColor= ResourcesCompat.getColor(context.getResources(), R.color.subtitle,null);
         this.mListener = listener;
+
+        if(selectedIconHex == null)
+            this.selectedIconColor = ResourcesCompat.getColor(context.getResources(),R.color.materialGreen, null);
+        else
+            this.selectedIconColor = Color.parseColor(selectedIconHex);
+
+        if(selectedDrawable != null)
+            this.selectedDrawable = PickerUtils.extractDrawable(selectedDrawable);
+        else
+            this.selectedDrawable = PickerUtils.extractDrawable(PickerUtils.sendDrawable(context.getResources(),R.drawable.ic_done));
     }
 
 
@@ -87,7 +100,7 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
 
     private void bindCommunicationToViewHolder(CommunicationViewHolder childViewHolder, String child) {
         childViewHolder.tvCommunication.setText(child);
-        if(Utils.isEmail(child))
+        if(PickerUtils.isEmail(child))
             childViewHolder.ivCommunicationIcon.setImageResource(R.drawable.ic_email);
         else
             childViewHolder.ivCommunicationIcon.setImageResource(R.drawable.ic_message);
@@ -101,12 +114,14 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
 
             String communication = contact.getSelectedCommunication();
 
+            parentViewHolder.ivSelected.setBackgroundColor(this.selectedIconColor);
+            parentViewHolder.ivSelected.setImageBitmap(selectedDrawable);
             parentViewHolder.letterIcon.setLetter(contact.getInitial());
             parentViewHolder.letterIcon.setShapeColor(mMaterialColors[position % mMaterialColors.length]);
             parentViewHolder.tvCommunication.setText(communication);
             parentViewHolder.tvDisplayName.setText(contact.getDisplayName());
 
-            if(Utils.isEmail(communication))
+            if(PickerUtils.isEmail(communication))
                 parentViewHolder.ivSelectedCommunication.setImageResource(R.drawable.ic_email);
             else
                 parentViewHolder.ivSelectedCommunication.setImageResource(R.drawable.ic_message);

@@ -3,9 +3,11 @@ package mx.com.quiin.demo;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +15,7 @@ import android.view.View;
 
 import java.util.TreeSet;
 
+import mx.com.quiin.contactpicker.PickerUtils;
 import mx.com.quiin.contactpicker.SimpleContact;
 import mx.com.quiin.contactpicker.ui.ContactPickerActivity;
 
@@ -31,6 +34,11 @@ public class MainActivity extends AppCompatActivity {
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
         if(permissionCheck == PackageManager.PERMISSION_GRANTED){
             Intent contactPicker = new Intent(this, ContactPickerActivity.class);
+//            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_SHOW_CHIPS, false);
+//            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_FAB_COLOR, "#FFF722");
+//            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_SELECTION_COLOR, "#FFF722");
+//            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_FAB_DRAWABLE, PickerUtils.sendDrawable(getResources(),R.drawable.ic_person));
+//            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_SELECTION_DRAWABLE, PickerUtils.sendDrawable(getResources(),R.drawable.ic_person));
             startActivityForResult(contactPicker, CONTACT_PICKER_REQUEST);
         }else{
             ActivityCompat.requestPermissions(this,

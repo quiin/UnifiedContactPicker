@@ -1,11 +1,8 @@
 package mx.com.quiin.contactpicker.ui;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -19,17 +16,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.MultiAutoCompleteTextView;
-import android.widget.SimpleAdapter;
 
 
 import com.hootsuite.nachos.NachoTextView;
 import com.hootsuite.nachos.chip.Chip;
 import com.hootsuite.nachos.chip.ChipSpan;
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler;
-import com.hootsuite.nachos.tokenizer.ChipTokenizer;
 import com.hootsuite.nachos.tokenizer.SpanChipTokenizer;
 
 import java.util.ArrayList;
@@ -49,33 +42,28 @@ import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ContactPickerFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor>,ContactSelectionListener {
+public class ContactPickerFragment extends Fragment
+        implements
+        LoaderManager.LoaderCallbacks<Cursor>,
+        ContactSelectionListener {
+
+    private String[] projection;
+    private String selection;
+    private String[] selectionArgs;
+    private String sortBy;
 
     private static final int CONTACT_LOADER_ID = 666;
-    private static final String TAG = ContactPickerFragment.class.getSimpleName();
     private static final String SELECTION_SAVE = "SELECTION_SAVE";
+    private static final String TAG = ContactPickerFragment.class.getSimpleName();
+
     private RecyclerView mRecyclerView;
     private NachoTextView mNachoTextView;
     private ContactAdapter mContactAdapter;
     private ArrayList<Contact> mContacts = new ArrayList<>();
     private final ArrayList<Contact> mSuggestions = new ArrayList<>();
+    private ContactPickerActivity mActivity;
 
-    private final String[] PROJECTION = new String[] {
-            ContactsContract.Data._ID,
-            ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.CommonDataKinds.Phone.NUMBER,
-            ContactsContract.Data.MIMETYPE,
-            ContactsContract.Contacts.PHOTO_URI,
-    };
-
-    public ContactPickerFragment() {}
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_contact_picker, container, false);
-    }
+    /*** Fragment callbacks ***/
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -85,15 +73,16 @@ public class ContactPickerFragment extends Fragment implements
             if(restored != null)
                 mContacts = restored;
         }
+
+        //Start contact cursor query in background
+        mActivity = (ContactPickerActivity) getActivity();
+        init();
+        mActivity.getSupportLoaderManager().initLoader(CONTACT_LOADER_ID, new Bundle(), this);
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if(mContactAdapter != null)
-            outState.putSerializable(SELECTION_SAVE, mContacts);
-        else
-            Log.e(TAG, "onSaveInstanceState: adapter is null");
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_contact_picker, container, false);
     }
 
     @Override
@@ -108,41 +97,28 @@ public class ContactPickerFragment extends Fragment implements
         this.mNachoTextView.addChipTerminator(' ', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_TO_TERMINATOR);
         this.mNachoTextView.setChipTokenizer(new SpanChipTokenizer<>(getContext(), new ContactChipCreator(), ChipSpan.class));
 
-
-        getActivity().getSupportLoaderManager()
-                .initLoader(CONTACT_LOADER_ID,
-                        new Bundle(),
-                        this);
-    }
-
-    private void setRecyclerView() {
-        this.mContactAdapter = new ContactAdapter(getContext(), mContacts, this);
-        mRecyclerView.setAdapter(mContactAdapter);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mContactAdapter != null)
+            outState.putSerializable(SELECTION_SAVE, mContacts);
+        else
+            Log.e(TAG, "onSaveInstanceState: adapter is null");
+    }
+
+    /*** Loader callbacks ***/
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // Define the columns to retrieve
 
-        String select =  "(" + ContactsContract.Data.MIMETYPE + "=? OR "
-                + ContactsContract.Data.MIMETYPE + "=?)";
-
-        String[] selectionArgs = new String[]{
-                ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE,
-                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
-        };
-
-        String sort = ContactsContract.Contacts.DISPLAY_NAME + " ASC";
-        // Return the loader for use
         return new CursorLoader(getContext(),
                 ContactsContract.Data.CONTENT_URI, // URI
-                PROJECTION, // projection fields
-                select, // the selection criteria
+                projection, // projection fields
+                selection, // the selection criteria
                 selectionArgs, // the selection args
-                sort // the sort order
+                sortBy // the sort order
         );
     }
 
@@ -190,9 +166,47 @@ public class ContactPickerFragment extends Fragment implements
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
+    /*** Contact selection callbacks ***/
+
+    /**
+     * Called whenever a contact is selected from the {@code mRecyclerView}
+     * This callback is NOT triggered when a {@code Chip} is added to {@code mNachoTextView}
+     * @param contact Selected contact
+     * @param communication Selected contact communication
+     */
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
+    public void onContactSelected(Contact contact, String communication) {
+        addChip(communication);
+    }
+
+    /**
+     * Called whenever a contact is unselected from the {@code mRecyclerView}
+     * This callback is NOT triggered when a {@code Chip} is added to {@code mNachoTextView}
+     * @param contact Unselected contact
+     * @param communication Unelected contact communication
+     */
+    @Override
+    public void onContactDeselected(Contact contact, String communication) {
+        Chip toRemove = null;
+        for (Chip chip : mNachoTextView.getAllChips()) {
+            if(chip.getText().equals(communication))
+                toRemove = chip;
+        }
+
+        removeChip(toRemove);
+    }
+
+    /*** Private methods ***/
+
+
+    private void setRecyclerView() {
+        String selectedHex = mActivity.getSelectedColor();
+        byte [] selectedDrawable = mActivity.getSelectedDrawable();
+        this.mContactAdapter = new ContactAdapter(getContext(), mContacts, this, selectedHex, selectedDrawable);
+        mRecyclerView.setAdapter(mContactAdapter);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void addChip(String communication) {
@@ -210,21 +224,20 @@ public class ContactPickerFragment extends Fragment implements
         }
     }
 
-    @Override
-    public void onContactSelected(Contact contact, String communication) {
-        addChip(communication);
+    private void init() {
+        if(mActivity.isShowChips())
+            this.mNachoTextView.setVisibility(View.VISIBLE);
+        else
+            this.mNachoTextView.setVisibility(View.GONE);
+
+
+        this.projection = mActivity.getProjection();
+        this.selection = mActivity.getSelect();
+        this.selectionArgs = mActivity.getSelectArgs();
+        this.sortBy = mActivity.getSortBy();
     }
 
-    @Override
-    public void onContactDeselected(Contact contact, String communication) {
-        Chip toRemove = null;
-        for (Chip chip : mNachoTextView.getAllChips()) {
-            if(chip.getText().equals(communication))
-                toRemove = chip;
-        }
-
-        removeChip(toRemove);
-    }
+    /*** Public methods ***/
 
     public TreeSet<SimpleContact> getSelected(){
         TreeSet<SimpleContact> toReturn = new TreeSet<>();
@@ -245,4 +258,5 @@ public class ContactPickerFragment extends Fragment implements
         }
         return toReturn;
     }
+
 }
