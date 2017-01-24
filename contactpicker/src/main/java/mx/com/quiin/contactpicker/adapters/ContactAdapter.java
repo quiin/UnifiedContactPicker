@@ -230,8 +230,8 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
         return mContacts.size();
     }
 
-    public List<SimpleContact> getSelection(){
-        List<SimpleContact> selected = new ArrayList<>();
+    public ArrayList<SimpleContact> getSelection(){
+        ArrayList<SimpleContact> selected = new ArrayList<>();
         for (Contact contact : mSelection) {
             selected.add(contact.simplify());
         }

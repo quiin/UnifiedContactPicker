@@ -1,10 +1,12 @@
 package mx.com.quiin.contactpicker;
 
+import java.io.Serializable;
+
 /**
  * Created by Carlos Reyna on 22/01/17.
  */
 
-public class SimpleContact {
+public class SimpleContact implements Comparable<SimpleContact>, Serializable{
 
     private String displayName;
     private String communication;
@@ -45,5 +47,11 @@ public class SimpleContact {
                 "displayName='" + displayName + '\'' +
                 ", communication='" + communication + '\'' +
                 '}';
+    }
+
+
+    @Override
+    public int compareTo(SimpleContact other) {
+        return this.displayName.compareTo(other.displayName);
     }
 }

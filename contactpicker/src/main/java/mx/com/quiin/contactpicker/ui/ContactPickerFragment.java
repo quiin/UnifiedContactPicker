@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import mx.com.quiin.contactpicker.ContactChipCreator;
 import mx.com.quiin.contactpicker.SimpleContact;
@@ -53,10 +54,11 @@ public class ContactPickerFragment extends Fragment implements
 
     private static final int CONTACT_LOADER_ID = 666;
     private static final String TAG = ContactPickerFragment.class.getSimpleName();
+    private static final String SELECTION_SAVE = "SELECTION_SAVE";
     private RecyclerView mRecyclerView;
     private NachoTextView mNachoTextView;
     private ContactAdapter mContactAdapter;
-    private List<Contact> mContacts = new ArrayList<>();
+    private ArrayList<Contact> mContacts = new ArrayList<>();
     private final ArrayList<Contact> mSuggestions = new ArrayList<>();
 
     private final String[] PROJECTION = new String[] {
@@ -75,7 +77,24 @@ public class ContactPickerFragment extends Fragment implements
         return inflater.inflate(R.layout.fragment_contact_picker, container, false);
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState != null){
+            ArrayList<Contact> restored = (ArrayList<Contact>) savedInstanceState.getSerializable(SELECTION_SAVE);
+            if(restored != null)
+                mContacts = restored;
+        }
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mContactAdapter != null)
+            outState.putSerializable(SELECTION_SAVE, mContacts);
+        else
+            Log.e(TAG, "onSaveInstanceState: adapter is null");
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -171,6 +190,11 @@ public class ContactPickerFragment extends Fragment implements
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+    }
+
     private void addChip(String communication) {
         if(mNachoTextView != null){
             mNachoTextView.append(communication);
@@ -202,8 +226,8 @@ public class ContactPickerFragment extends Fragment implements
         removeChip(toRemove);
     }
 
-    public Set<SimpleContact> getSelected(){
-        Set<SimpleContact> toReturn = new HashSet<>();
+    public TreeSet<SimpleContact> getSelected(){
+        TreeSet<SimpleContact> toReturn = new TreeSet<>();
         if(this.mNachoTextView != null){
             Set<SimpleContact> chips = new HashSet<>();
 
@@ -213,11 +237,10 @@ public class ContactPickerFragment extends Fragment implements
 
             List<SimpleContact> selected = this.mContactAdapter.getSelection();
             for (SimpleContact simpleContact : chips) {
-                String communication = simpleContact.getCommunication();
-                if(selected.contains(communication))
-                    toReturn.add(simpleContact);
+                if(selected.contains(simpleContact))
+                    toReturn.add(selected.get(selected.indexOf(simpleContact)));
                 else
-                    toReturn.add(new SimpleContact(communication, communication));
+                    toReturn.add(simpleContact);
             }
         }
         return toReturn;

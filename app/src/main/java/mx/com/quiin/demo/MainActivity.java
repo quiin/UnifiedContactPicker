@@ -8,13 +8,18 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import java.util.TreeSet;
+
+import mx.com.quiin.contactpicker.SimpleContact;
 import mx.com.quiin.contactpicker.ui.ContactPickerActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int READ_CONTACT_REQUEST = 1;
+    private static final int CONTACT_PICKER_REQUEST = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,14 +28,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void launchContactPicker(View view) {
-        int persmissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
-        if(persmissionCheck == PackageManager.PERMISSION_GRANTED){
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
+        if(permissionCheck == PackageManager.PERMISSION_GRANTED){
             Intent contactPicker = new Intent(this, ContactPickerActivity.class);
-            startActivity(contactPicker);
+            startActivityForResult(contactPicker, CONTACT_PICKER_REQUEST);
         }else{
             ActivityCompat.requestPermissions(this,
                     new String[] {Manifest.permission.READ_CONTACTS},
                     READ_CONTACT_REQUEST);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case CONTACT_PICKER_REQUEST:
+                //contacts were selected
+                if(resultCode == RESULT_OK){
+                    if(data != null){
+                        TreeSet<SimpleContact> selectedContacts = (TreeSet<SimpleContact>) data.getSerializableExtra(ContactPickerActivity.CP_SELECTED_CONTACTS);
+                        if(selectedContacts != null)
+                            for (SimpleContact selectedContact : selectedContacts) {
+                                Log.e("Selected", selectedContact.toString());
+                            }
+                    }
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode,resultCode,data);
         }
     }
 

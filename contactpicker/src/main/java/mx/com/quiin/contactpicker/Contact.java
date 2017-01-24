@@ -6,6 +6,7 @@ import android.net.Uri;
 
 import com.bignerdranch.expandablerecyclerview.model.Parent;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
  * Created by Carlos Reyna on 20/01/17.
  */
 
-public class Contact implements Parent<String>{
+public class Contact implements Parent<String>, Serializable{
 
     private String displayName;
     private boolean isSelected;
@@ -88,7 +89,9 @@ public class Contact implements Parent<String>{
     public String toString() {
         return "Contact{" +
                 "displayName='" + displayName + '\'' +
+                ", isSelected=" + isSelected +
                 ", communications=" + communications +
+                ", selectedCommunication='" + selectedCommunication + '\'' +
                 '}';
     }
 
