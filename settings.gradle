@@ -1,1 +1,1 @@
-include ':app', ':unifiedContactPicker'
+include ':sample', ':unifiedContactPicker'
