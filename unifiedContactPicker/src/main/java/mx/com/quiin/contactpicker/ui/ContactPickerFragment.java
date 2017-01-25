@@ -38,6 +38,7 @@ import mx.com.quiin.contactpicker.adapters.ContactAdapter;
 import mx.com.quiin.contactpicker.R;
 import mx.com.quiin.contactpicker.Contact;
 import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
+import mx.com.quiin.contactpicker.views.CPLinearLayoutManager;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -203,10 +204,12 @@ public class ContactPickerFragment extends Fragment
         String selectedHex = mActivity.getSelectedColor();
         byte [] selectedDrawable = mActivity.getSelectedDrawable();
         this.mContactAdapter = new ContactAdapter(getContext(), mContacts, this, selectedHex, selectedDrawable);
-        mRecyclerView.setAdapter(mContactAdapter);
+        mRecyclerView.swapAdapter(mContactAdapter, true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setLayoutManager(new CPLinearLayoutManager(getContext()));
+        mRecyclerView.stopScroll();
+        mContactAdapter.notifyDataSetChanged();
     }
 
     private void addChip(String communication) {

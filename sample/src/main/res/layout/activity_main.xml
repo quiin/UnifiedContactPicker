@@ -11,13 +11,32 @@
     tools:context="mx.com.quiin.demo.MainActivity">
 
     <Button
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
         android:text="Choose contacts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:padding="25dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="27dp"
-        android:id="@+id/button"
         android:onClick="launchContactPicker"
         style="@style/Widget.AppCompat.Button.Colored" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:text="No Contacts selected"
+        android:textSize="30sp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:textAlignment="center"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_above="@id/button"
+        android:layout_below="@id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 </RelativeLayout>
