@@ -13,7 +13,7 @@ Android applications.
 UnifiedContactPicker is an Android library which allows you to easily integrate contact picking workflow into your application with minimal effort
 
 ## Demo
-
+![](https://media.giphy.com/media/26xBtXCT49aFwPmCI/source.gif)
 
 ## Features
 
