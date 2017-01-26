@@ -1,8 +1,7 @@
 # Unified Contact Picker Android Library
 
-[![GitHub release](https://img.shields.io/github/release/quiin/UnifiedContactPicker.svg)](https://github.com/quiin/UnifiedContactPicker/releases/latest)
-[![Min SDK](https://img.shields.io/badge/minSDK-15-brightgreen.svg)](https://developer.android.com/about/dashboards/index.html)
-[![GitHub license](https://img.shields.io/badge/license-Apache%202-orange.svg)](https://raw.githubusercontent.com/quiin/UnifiedContactPicker/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/quiin/UnifiedContactPicker.svg)](https://github.com/quiin/UnifiedContactPicker/releases/latest)  [![Min SDK](https://img.shields.io/badge/minSDK-15-brightgreen.svg)](https://developer.android.com/about/dashboards/index.html)  [![GitHub license](https://img.shields.io/badge/license-Apache%202-orange.svg)](https://raw.githubusercontent.com/quiin/UnifiedContactPicker/master/LICENSE)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Unified%20Contact%20Picker-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/5158) 
 
 ## Introduction
 
@@ -40,7 +39,7 @@ repositories {
 As well as this line in your project **build.gradle** file
 <pre> <code>
 dependencies {
-	compile 'com.github.quiin:unifiedContactPicker:{LATEST_VERSION}'
+    compile 'com.github.quiin:unifiedContactPicker:{LATEST_VERSION}'
     ...
 }
 </code> </pre>
@@ -52,7 +51,7 @@ To use UnifiedContactPicker in your app simply follow this 3 simple steps:
 1. Add _read contacts_ permission in your manifest
 
 ```
-	<uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 ```
 
 2. Launch _ContactPickerActivity.java_ as activity result
@@ -108,24 +107,24 @@ Contacts are returned in a TreeSet of *SimpleContact*; each *SimpleContact* obje
 
 The following UI views can be customized:
 
-| UI component  	     |       Intent extra  	     | Expected value |  Type   | Sugestion |
+| UI component           |       Intent extra        | Expected value |  Type   | Sugestion |
 |:----------------------:|:-------------------------:|:--------------:|:-------:|:---------:|
-| FAB color              | CP_EXTRA_FAB_COLOR	     | hexColor       | String  | 		-	|
-| Selection color		 | CP_EXTRA_SELECTION_COLOR  | hexColor       | String  |		-	|
-| Selection Drawable 	 |CP_EXTRA_SELECTION_DRAWABLE| Image		  | byte [] |use PickerUtils.sendDrawable()|
-| Fab drawable			 | CP_EXTRA_FAB_DRAWABLE 	 | Image		  | byte [] |use PickerUtils.sendDrawable()|
-| Chips 				 | CP_EXTRA_SHOW_CHIPS       | boolean		  | boolean | 		-	|
+| FAB color              | CP_EXTRA_FAB_COLOR        | hexColor       | String  |       -   |
+| Selection color        | CP_EXTRA_SELECTION_COLOR  | hexColor       | String  |       -   |
+| Selection Drawable     |CP_EXTRA_SELECTION_DRAWABLE| Image          | byte [] |use PickerUtils.sendDrawable()|
+| Fab drawable           | CP_EXTRA_FAB_DRAWABLE     | Image          | byte [] |use PickerUtils.sendDrawable()|
+| Chips                  | CP_EXTRA_SHOW_CHIPS       | boolean        | boolean |       -   |
 
 
 Aditionally, you can customize the contact query parameters used to extract the user's contacts adding the following extras to the intent
 
-| Extra 			 				| 	Type 	|
+| Extra                             |   Type    |
 |:---------------------------------:|:---------:|
-|CP_EXTRA_PROJECTION				| String [] |
-|CP_EXTRA_SELECTION  				| String	|
-|CP_EXTRA_SELECTION_ARGS			| String []	|
-|CP_EXTRA_HAS_CUSTOM_SELECTION_ARGS | boolean	|
-|CP_EXTRA_SORT_BY					| String	|
+|CP_EXTRA_PROJECTION                | String [] |
+|CP_EXTRA_SELECTION                 | String    |
+|CP_EXTRA_SELECTION_ARGS            | String [] |
+|CP_EXTRA_HAS_CUSTOM_SELECTION_ARGS | boolean   |
+|CP_EXTRA_SORT_BY                   | String    |
 
 #### Example
 ```java
@@ -134,7 +133,7 @@ public void launchContactPicker(View view) {
         if(permissionCheck == PackageManager.PERMISSION_GRANTED){
             Intent contactPicker = new Intent(this, ContactPickerActivity.class);
             //Don't show Chips
-			contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_SHOW_CHIPS, false);
+            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_SHOW_CHIPS, false);
             //Customize Floating action button color
             contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_FAB_COLOR, "#FFF722");
             //Customize Selection drawable
