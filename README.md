@@ -11,6 +11,10 @@ Although there is a standard way to call the contact list in Android, it does no
 Android applications.
 UnifiedContactPicker is an Android library which allows you to easily integrate contact picking workflow into your application with minimal effort
 
+### IMPORTANT :exclamation:
+---
+This library is no longer in active development. However, pull requests for new features or bugfixes are always welcomed and will be attended.
+
 ## Demo
 ![](https://media.giphy.com/media/26xBtXCT49aFwPmCI/source.gif)
 
